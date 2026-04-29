@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appexy - Dark/Light Mode</title>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- تكوين Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'serif': ['Merriweather', 'Georgia', 'serif']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* تخصيصات CSS */
+        :root {
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            transition: background-color var(--transition-speed) ease,
+                        color var(--transition-speed) ease;
+        }
+        
+        /* Dark Mode Toggle Custom */
+        .mode-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .mode-toggle input {
+            display: none;
+        }
+        
+        .mode-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            transition: var(--transition-speed);
+            border-radius: 34px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mode-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: var(--transition-speed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        input:checked + .mode-toggle-slider {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+        }
+        
+        input:checked + .mode-toggle-slider:before {
+            transform: translateX(30px);
+            content: "🌙";
+            font-size: 12px;
+            background: transparent;
+            color: white;
+        }
+        
+        .mode-toggle-slider:before {
+            content: "☀️";
+            font-size: 12px;
+            color: #f59e0b;
+        }
+        
+        /* Light Mode Theme */
+        .light-mode {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+        }
+        
+        /* Dark Mode Theme */
+        .dark-mode {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+        }
+        
+        /* Card Styling */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            transition: all var(--transition-speed) ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dark-mode .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Smooth transitions */
+        .transition-theme {
+            transition: background-color var(--transition-speed) ease,
+                        color var(--transition-speed) ease,
+                        border-color var(--transition-speed) ease;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .dark-mode .gradient-text {
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="font-sans bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-theme">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-theme">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-rirgt from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">A</span>
+                    </div>
+                    <span class="text-2xl font-bold gradient-text">Appexy</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Home</a>
+                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Features</a>
+                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Pricing</a>
+                    <a href="#" class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-colors">Contact</a>
+                    
+                    <!-- Dark/Light Mode Toggle -->
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-sun mr-1"></i>
+                        </span>
+                      <label class="inline-flex items-center cursor-pointer">
+<input type="checkbox" id="darkToggle" class="sr-only peer">
+<div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full 
+peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-
+translate-x-full peer-checked:after:border-white after:content-[''] after:absolute 
+after:top-0.5 after:start-0.5 after:bg-white after:border-gray-300 after:border 
+after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 
+peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+</label>
+                        <span class="text-sm text-gray-500 dark:text-gray-400">
+                            <i class="fas fa-moon ml-1"></i>
+                        </span>
+                    </div>
+                    
+                    <a href="#" class="px-5 py-2 bg-gradient-to-right from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-medium">
+                        Get Started
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuButton" class="md:hidden text-gray-700 dark:text-gray-300">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-4 space-y-4">
+                <a href="#" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Home</a>
+                <a href="#" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Features</a>
+                <a href="#" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Pricing</a>
+                <a href="#" class="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Contact</a>
+                
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
+                    <span class="text-gray-600 dark:text-gray-400">Theme:</span>
+                    <label class="mode-toggle">
+                        <input type="checkbox" id="themeToggleMobile">
+                        <span class="mode-toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="py-20 px-6 bg-gradient-to-right from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 transition-theme">
+        <div class="container mx-auto">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+                <!-- Left Content -->
+                <div class="lg:w-1/2 animate-fade-in">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full bg-white dark:bg-gray-800 shadow-sm mb-6">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Version 3.0 Released</span>
+                    </div>
+                    
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                        <span class="block">Build Better</span>
+                        <span class="gradient-text">With Appexy</span>
+                    </h1>
+                    
+                    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                        The ultimate solution for managing your projects, tasks, and team collaboration. 
+                        Experience seamless workflow with our intuitive interface and powerful features.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="px-8 py-3 bg-gradient-to-right from-blue-500 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-medium flex items-center justify-center">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Start Free Trial
+                        </button>
+                        <button class="px-8 py-3 border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors font-medium flex items-center justify-center">
+                            <i class="fas fa-video mr-2"></i>
+                            Watch Demo
+                        </button>
+                    </div>
+                    
+                    <div class="mt-8 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            <span>No credit card required</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            <span>14-day free trial</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Content -->
+                <div class="lg:w-1/2 relative">
+                    <div class="relative animate-slide-up">
+                        <div class="absolute -inset-4 bg-gradient-to-right from-blue-500 to-purple-600 rounded-3xl opacity-20 blur-xl"></div>
+                        <div class="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-6">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Dashboard Preview</span>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-blue-50 dark:bg-gray-700 rounded-xl p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Projects</span>
+                                            <i class="fas fa-folder text-blue-500"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-800 dark:text-white">24</div>
+                                        <div class="text-xs text-green-500 mt-1">
+                                            <i class="fas fa-arrow-up mr-1"></i>12%
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-purple-50 dark:bg-gray-700 rounded-xl p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Tasks</span>
+                                            <i class="fas fa-tasks text-purple-500"></i>
+                                        </div>
+                                        <div class="text-2xl font-bold text-gray-800 dark:text-white">156</div>
+                                        <div class="text-xs text-green-500 mt-1">
+                                            <i class="fas fa-arrow-up mr-1"></i>8%
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-right from-blue-500 to-purple-600 w-3/4"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                                        <span>Weekly Progress</span>
+                                        <span>75%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 px-6 bg-white dark:bg-gray-900 transition-theme">
+        <div class="container mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    Powerful Features for
+                    <span class="gradient-text">Modern Teams</span>
+                </h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Everything you need to manage your projects efficiently and collaborate with your team seamlessly.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="card rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-right from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-bolt text-2xl text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Fast Performance</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Lightning-fast load times and smooth animations for the best user experience.
+                    </p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Instant loading
+                        </li>
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Real-time updates
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="card rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-right from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-800/30 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-moon text-2xl text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Dark/Light Mode</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Switch between light and dark themes according to your preference or environment.
+                    </p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            System preference detection
+                        </li>
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Manual toggle
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="card rounded-2xl p-8 hover:shadow-xl transition-all duration-300">
+                    <div class="w-14 h-14 bg-gradient-to-right from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-800/30 rounded-2xl flex items-center justify-center mb-6">
+                        <i class="fas fa-mobile-alt text-2xl text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Responsive Design</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Perfect experience on any device - desktop, tablet, or mobile.
+                    </p>
+                    <ul class="space-y-2">
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Mobile-first approach
+                        </li>
+                        <li class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                            <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                            Tablet optimized
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Theme Demo Section -->
+    <section class="py-20 px-6 bg-gradient-to-right from-gray-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 transition-theme">
+        <div class="container mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">
+                    Experience Both
+                    <span class="gradient-text">Themes</span>
+                </h2>
+                <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
+                    See how Appexy looks in both light and dark modes. Toggle between themes to find your preference.
+                </p>
+                
+                <!-- Theme Toggle Demo -->
+                <div class="inline-flex items-center bg-white dark:bg-gray-800 rounded-full p-2 shadow-lg">
+                    <button id="themeDemoLight" class="px-6 py-3 rounded-full bg-blue-100 dark:bg-transparent text-blue-600 dark:text-gray-400 font-medium flex items-center">
+                        <i class="fas fa-sun mr-2"></i>
+                        Light Mode
+                    </button>
+                    <button id="themeDemoDark" class="px-6 py-3 rounded-full bg-transparent dark:bg-blue-900/30 text-gray-600 dark:text-blue-400 font-medium flex items-center">
+                        <i class="fas fa-moon mr-2"></i>
+                        Dark Mode
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Comparison Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <!-- Light Mode Card -->
+                <div id="lightDemo" class="bg-white rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 border-2 border-blue-200">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">Light Mode Preview</span>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-sun text-yellow-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="space-y-4">
+                            <div class="h-4 bg-gray-200 rounded-full"></div>
+                            <div class="h-4 bg-gray-200 rounded-full w-5/6"></div>
+                            <div class="h-4 bg-gray-200 rounded-full w-4/6"></div>
+                        </div>
+                        <div class="mt-8 grid grid-cols-3 gap-4">
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <div class="h-8 bg-blue-100 rounded mb-2"></div>
+                                <div class="h-4 bg-blue-100 rounded"></div>
+                            </div>
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <div class="h-8 bg-green-100 rounded mb-2"></div>
+                                <div class="h-4 bg-green-100 rounded"></div>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-4">
+                                <div class="h-8 bg-purple-100 rounded mb-2"></div>
+                                <div class="h-4 bg-purple-100 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dark Mode Card -->
+                <div id="darkDemo" class="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden transition-all duration-300 border-2 border-gray-700">
+                    <div class="p-6 border-b border-gray-700">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            </div>
+                            <span class="text-sm font-medium text-gray-300">Dark Mode Preview</span>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-moon text-blue-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="space-y-4">
+                            <div class="h-4 bg-gray-700 rounded-full"></div>
+                            <div class="h-4 bg-gray-700 rounded-full w-5/6"></div>
+                            <div class="h-4 bg-gray-700 rounded-full w-4/6"></div>
+                        </div>
+                        <div class="mt-8 grid grid-cols-3 gap-4">
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <div class="h-8 bg-gray-600 rounded mb-2"></div>
+                                <div class="h-4 bg-gray-600 rounded"></div>
+                            </div>
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <div class="h-8 bg-gray-600 rounded mb-2"></div>
+                                <div class="h-4 bg-gray-600 rounded"></div>
+                            </div>
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <div class="h-8 bg-gray-600 rounded mb-2"></div>
+                                <div class="h-4 bg-gray-600 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize theme
+        const toggle = document.getElementById('darkToggle');
+const html = document.documentElement;
+toggle.addEventListener('change', function () {
+if (toggle.checked) {
+html.classList.add('dark');
+localStorage.setItem('theme', 'dark');
+} else {
+html.classList.remove('dark');
+localStorage.setItem('theme', 'light');
+}
+});
+// Load saved theme
+if (localStorage.getItem('theme') === 'dark') {
+html.classList.add('dark')}
+    </script>
+</body>
+</html> 
+<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+    
+   
+
+    <!-- Hero Section -->
+    <section class="relative bg-gradient-to-right from-blue-50 to-white dark:from-gray-900 dark:to-gray-800 min-h-[90vh] flex items-center">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-10 left-10 w-72 h-72 bg-blue-300 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-10 right-10 w-72 h-72 bg-purple-300 rounded-full blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 md:px-12 py-16 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center justify-between gap-12">
+                <!-- Left Content -->
+                <div class="lg:w-1/2 space-y-8">
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white leading-tight">
+                        Manage Your Activity<br>
+                        With <span class="text-blue-600 dark:text-blue-400">Appexy</span>
+                    </h1>
+                    
+                    <p class="text-gray-600 dark:text-gray-300 text-lg max-w-2xl">
+                        The ultimate solution for managing your daily tasks, projects, and team collaboration. 
+                        Simple, powerful, and designed for modern teams.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="#" class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium text-center">
+                            <i class="fas fa-play-circle mr-2"></i> Get Started Free
+                        </a>
+                        <a href="#" class="px-8 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition font-medium text-center">
+                            <i class="fas fa-download mr-2"></i> Download App
+                        </a>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="flex gap-8 pt-8">
+                        <div>
+                            <div class="text-3xl font-bold text-blue-600">10K+</div>
+                            <div class="text-gray-500 dark:text-gray-400">Active Users</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-blue-600">4.9</div>
+                            <div class="text-gray-500 dark:text-gray-400">App Rating</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-blue-600">24/7</div>
+                            <div class="text-gray-500 dark:text-gray-400">Support</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Image Placeholder -->
+                <div class="lg:w-1/2 flex justify-center">
+                    <div class="relative w-full max-w-md">
+                        <div class="bg-gradient-to-right from-blue-500 to-purple-600 rounded-3xl p-8 shadow-2xl transform rotate-3">
+                            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg transform -rotate-3">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                                    <div class="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
+                                </div>
+                                <div class="mt-6 bg-blue-100 dark:bg-blue-900/30 rounded-xl p-4">
+                                    <div class="text-blue-700 dark:text-blue-300 font-medium">Task Completed!</div>
+                                    <div class="text-sm text-gray-600 dark:text-gray-400">You have 5 new tasks today</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-6 md:px-12 bg-gray-50 dark:bg-gray-950">
+        <div class="container mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
+                    <i class="fas fa-star"></i> OUR FEATURES
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    Smart Solutions For Busy People
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Designed to simplify your workflow and boost productivity with intelligent features.
+                </p>
+            </div>
+            
+            <!-- Features Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow card-hover">
+                    <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-flag text-2xl text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Goal Tracking</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Set, track, and achieve your personal and professional goals with our intuitive tracking system.
+                    </p>
+                    <a href="#" class="text-blue-600 dark:text-blue-400 font-medium inline-flex items-center">
+                        Learn More <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- Feature 2 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow card-hover">
+                    <div class="w-14 h-14 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-book text-2xl text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Knowledge Base</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Access a comprehensive library of resources, tutorials, and best practices.
+                    </p>
+                    <a href="#" class="text-blue-600 dark:text-blue-400 font-medium inline-flex items-center">
+                        Explore Resources <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+                
+                <!-- Feature 3 -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow card-hover">
+                    <div class="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-lock text-2xl text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">Advanced Security</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4">
+                        Enterprise-grade security with end-to-end encryption and multi-factor authentication.
+                    </p>
+                    <a href="#" class="text-blue-600 dark:text-blue-400 font-medium inline-flex items-center">
+                        Security Details <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-20 px-6 md:px-12">
+        <div class="container mx-auto">
+            <!-- Section Header -->
+            <div class="text-center mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-medium mb-4">
+                    <i class="fas fa-tags"></i> PRICING PLANS
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                    Choose Your Perfect Plan
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                    Flexible pricing for teams of all sizes. Start free, upgrade anytime.
+                </p>
+                
+                <!-- Billing Toggle -->
+                <div class="inline-flex items-center bg-gray-100 dark:bg-gray-800 rounded-full p-1 mt-8">
+                    <button id="monthlyBtn" class="px-6 py-2 bg-blue-600 text-white font-medium rounded-full">
+                        Monthly Billing
+                    </button>
+                    <button id="yearlyBtn" class="px-6 py-2 text-gray-600 dark:text-gray-400 font-medium rounded-full">
+                        Yearly Billing <span class="text-xs bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-400 px-2 py-1 rounded-full ml-2">Save 20%</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Pricing Cards -->
+            <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+                <!-- Free Plan -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Free</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">Perfect for getting started</p>
+                    
+                    <div class="mb-8">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white">$0</span>
+                        <span class="text-gray-500 dark:text-gray-400">/month</span>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>3 Projects</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>50GB Storage</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Basic Support</span>
+                        </li>
+                        <li class="flex items-center text-gray-400">
+                            <i class="fas fa-times mr-3"></i>
+                            <span>Advanced Analytics</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 border-2 border-blue-600 text-blue-600 dark:text-blue-400 font-medium rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition">
+                        Get Started Free
+                    </button>
+                </div>
+                
+                <!-- Pro Plan (Most Popular) -->
+                <div class="bg-gradient-to-right from-blue-600 to-purple-600 rounded-2xl p-8 shadow-2xl transform scale-105 relative price-popular">
+                    <div class="absolute top-0 left-0 right-0 bg-gradient-to-right from-pink-500 to-red-500 text-white text-center py-2 text-sm font-bold">
+                        MOST POPULAR
+                    </div>
+                    
+                    <div class="pt-8">
+                        <h3 class="text-xl font-bold text-white mb-2">Pro</h3>
+                        <p class="text-blue-100 mb-6">For growing teams</p>
+                        
+                        <div class="mb-8">
+                            <span class="text-4xl font-bold text-white" id="proPrice">$29</span>
+                            <span class="text-blue-200">/month</span>
+                        </div>
+                        
+                        <ul class="space-y-4 mb-8 text-white">
+                            <li class="flex items-center">
+                                <i class="fas fa-check mr-3"></i>
+                                <span>Unlimited Projects</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check mr-3"></i>
+                                <span>1TB Storage</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check mr-3"></i>
+                                <span>Priority Support</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check mr-3"></i>
+                                <span>Advanced Analytics</span>
+                            </li>
+                        </ul>
+                        
+                        <button class="w-full py-3 bg-white text-blue-600 font-bold rounded-lg hover:bg-gray-100 transition">
+                            Start Free Trial
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Enterprise Plan -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Enterprise</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6">For large organizations</p>
+                    
+                    <div class="mb-8">
+                        <span class="text-4xl font-bold text-gray-900 dark:text-white" id="enterprisePrice">$49</span>
+                        <span class="text-gray-500 dark:text-gray-400">/month</span>
+                    </div>
+                    
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Everything in Pro</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Custom Solutions</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>Dedicated Manager</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-check text-green-500 mr-3"></i>
+                            <span>24/7 Phone Support</span>
+                        </li>
+                    </ul>
+                    
+                    <button class="w-full py-3 bg-gray-900 dark:bg-gray-700 text-white font-medium rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <footer class="bg-gray-50 dark:bg-gray-900 py-12 px-6 border-t border-gray-200 dark:border-gray-800 transition-theme">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                
+            
+            <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
+                <p class="text-gray-600 dark:text-gray-400">
+                    &copy; 2024 Appexy. All rights reserved. | 
+                    <span id="currentTheme" class="font-medium">Light Mode</span> Active
+                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                    Theme preference is saved in your browser
+                </p>
+            </div>
+        </div>
+    </footer>
